@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <sys/ioctl.h>
+#include <string.h>
 
 /*** defines */
 #define CTRL_KEY(k) ((k) & 0x1f)
@@ -85,6 +86,14 @@ int getWindowSize(int *rows, int *cols) {
     return 0;
   }
 }
+
+/*** append buffer */
+struct abuf {
+	char *b;
+	int len;
+};
+
+#define ABUF_INIT { NULL, 0}
 
 /*** output */
 
