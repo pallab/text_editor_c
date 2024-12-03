@@ -9,6 +9,8 @@
 #include <string.h>
 
 /*** defines */
+#define EDITOR_VERSION "1.0.0"
+
 #define CTRL_KEY(k) ((k) & 0x1f)
 
 /*** data */
@@ -114,6 +116,8 @@ void editorDrawRows(struct abuf *ab) {
 	int y;
 	for (y =0; y < E.screenrows; y ++) {
 		abAppend(ab, "~", 1);
+		// erase part of the line to the right of the cursor
+		abAppend(ab, "\x1b[K", 3);
 		if (y < E.screenrows - 1) {
 			abAppend(ab, "\r\n", 2);
 		}
@@ -123,11 +127,18 @@ void editorDrawRows(struct abuf *ab) {
 void editorRefreshScreen() {
 	struct abuf ab = ABUF_INIT;
 
-	abAppend(&ab, "\x1b[2J", 4);
+	// escape seq to hide the cursor
+	abAppend(&ab, "\x1b[?25l", 6);
+
+	// position cursor at top left corner
 	abAppend(&ab, "\x1b[H", 3);
 
 	editorDrawRows(&ab);
 	abAppend(&ab, "\x1b[H", 3);
+
+	// escape seq to unhide the cursor 
+	abAppend(&ab, "\x1b[?25h", 6);
+
 	write(STDERR_FILENO, ab.b, ab.len);
 	abFree(&ab);
 }
